@@ -2,74 +2,64 @@ package com.tecsup.petclinic.services;
 
 import com.tecsup.petclinic.owner.Owner;
 import com.tecsup.petclinic.owner.OwnerNotFoundException;
-import com.tecsup.petclinic.owner.OwnerRepository;
-import com.tecsup.petclinic.owner.OwnerServiceImpl;
+import com.tecsup.petclinic.owner.OwnerService;
+import lombok.extern.slf4j.Slf4j;
 import org.junit.jupiter.api.Test;
-import org.junit.jupiter.api.extension.ExtendWith;
-import org.mockito.ArgumentCaptor;
-import org.mockito.InjectMocks;
-import org.mockito.Mock;
-import org.mockito.junit.jupiter.MockitoExtension;
-
-import java.util.Optional;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.boot.test.context.SpringBootTest;
 
 import static org.junit.jupiter.api.Assertions.*;
-import static org.mockito.Mockito.*;
 
-@ExtendWith(MockitoExtension.class)
-class OwnerServiceCrudTest {
+@SpringBootTest
+@Slf4j
+public class OwnerServiceCrudTest {
 
-    @Mock
-    private OwnerRepository ownerRepository;
-
-    @InjectMocks
-    private OwnerServiceImpl ownerService;
+    @Autowired
+    private OwnerService ownerService;
 
     @Test
-    void testCreateOwner() {
-        Owner newOwner = new Owner(null, "Noe", "Escobal", "Av. Lima 123", "Lima", "999111222");
-        Owner savedOwner = new Owner(11, "Noe", "Escobal", "Av. Lima 123", "Lima", "999111222");
+    public void testCreateOwner() {
 
-        when(ownerRepository.save(newOwner)).thenReturn(savedOwner);
+        Owner owner = new Owner(null, "Noe", "Escobal", "Av. Lima 123", "Lima", "999111222");
 
-        Owner result = ownerService.create(newOwner);
+        Owner created = this.ownerService.create(owner);
+        log.info("OWNER CREATED: {}", created);
 
-        assertNotNull(result.getId());
-        assertEquals(11, result.getId());
-        assertEquals("Noe", result.getFirstName());
-        assertEquals("Escobal", result.getLastName());
-        assertEquals("Lima", result.getCity());
-        verify(ownerRepository, times(1)).save(newOwner);
+        assertNotNull(created.getId());
+        assertEquals("Noe", created.getFirstName());
+        assertEquals("Escobal", created.getLastName());
+        assertEquals("Lima", created.getCity());
     }
 
     @Test
-    void testUpdateOwner() {
-        Owner updated = new Owner(1, "Noe", "Escobal", "Av. Arequipa 456", "Arequipa", "988777666");
+    public void testUpdateOwner() throws OwnerNotFoundException {
 
-        when(ownerRepository.save(any(Owner.class))).thenAnswer(inv -> inv.getArgument(0));
+        Owner created = this.ownerService.create(
+                new Owner(null, "Maria", "Lopez", "Av. Sol 100", "Cusco", "955444333"));
 
-        Owner result = ownerService.update(updated);
+        created.setAddress("Av. Arequipa 456");
+        created.setCity("Arequipa");
+        created.setTelephone("988777666");
 
-        ArgumentCaptor<Owner> captor = ArgumentCaptor.forClass(Owner.class);
-        verify(ownerRepository).save(captor.capture());
+        Owner updated = this.ownerService.update(created);
 
-        assertEquals(1, result.getId());
-        assertEquals("Arequipa", result.getCity());
-        assertEquals("Av. Arequipa 456", result.getAddress());
-        assertEquals("988777666", result.getTelephone());
-        assertEquals("Arequipa", captor.getValue().getCity());
+        Owner fromDb = this.ownerService.findById(updated.getId());
+
+        assertEquals(created.getId(), fromDb.getId());
+        assertEquals("Av. Arequipa 456", fromDb.getAddress());
+        assertEquals("Arequipa", fromDb.getCity());
+        assertEquals("988777666", fromDb.getTelephone());
     }
 
     @Test
-    void testDeleteOwner() throws OwnerNotFoundException {
-        Owner existing = new Owner(1, "Noe", "Escobal", "Av. Lima 123", "Lima", "999111222");
+    public void testDeleteOwner() throws OwnerNotFoundException {
 
-        when(ownerRepository.findById(1)).thenReturn(Optional.of(existing));
-        doNothing().when(ownerRepository).delete(existing);
+        Owner created = this.ownerService.create(
+                new Owner(null, "Juan", "Perez", "Jr. Union 50", "Lima", "911222333"));
+        Integer id = created.getId();
 
-        ownerService.delete(1);
+        this.ownerService.delete(id);
 
-        verify(ownerRepository, times(1)).findById(1);
-        verify(ownerRepository, times(1)).delete(existing);
+        assertThrows(OwnerNotFoundException.class, () -> this.ownerService.findById(id));
     }
 }
