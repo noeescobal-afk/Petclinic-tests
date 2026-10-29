@@ -1,7 +1,10 @@
 
 package com.tecsup.petclinic.services;
 
-import com.tecsup.petclinic.exceptions.OwnerNotFoundException;
+import com.tecsup.petclinic.owner.Owner;
+import com.tecsup.petclinic.owner.OwnerNotFoundException;
+import com.tecsup.petclinic.owner.OwnerService;
+
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
@@ -17,6 +20,7 @@ public class OwnerServiceTest {
 	private OwnerService ownerService;
 
 	// INTEGRANTE C - CASOS DE ERROR
+	// Ivan Jara Ayala
 
 	// PRUEBA 1: Buscar propietario inexistente
 	@Test
@@ -26,7 +30,8 @@ public class OwnerServiceTest {
 
 		assertThrows(
 				OwnerNotFoundException.class,
-				() -> ownerService.findById(id)
+				() -> ownerService.findById(id),
+				"Debe lanzar OwnerNotFoundException"
 		);
 	}
 
@@ -38,24 +43,28 @@ public class OwnerServiceTest {
 
 		assertThrows(
 				OwnerNotFoundException.class,
-				() -> ownerService.delete(id)
+				() -> ownerService.delete(id),
+				"Debe lanzar excepcion al eliminar un dueño inexistente"
 		);
 	}
 
-	// PRUEBA 3: Buscar apellido inexistente
+	// PRUEBA 3: Buscar apellido sin coincidencias
 	@Test
 	public void testFindByLastName_Empty() {
 
 		String apellido = "ApellidoInexistente999";
 
-		List<?> propietarios =
+		List<Owner> propietarios =
 				ownerService.findByLastName(apellido);
 
-		assertNotNull(propietarios);
+		assertNotNull(
+				propietarios,
+				"La lista no debe ser null"
+		);
 
 		assertTrue(
 				propietarios.isEmpty(),
-				"La lista debe estar vacia"
+				"Debe devolver una lista vacia"
 		);
 	}
 }
