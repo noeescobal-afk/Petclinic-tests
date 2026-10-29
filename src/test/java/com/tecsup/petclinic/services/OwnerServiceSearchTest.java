@@ -45,6 +45,7 @@ public class OwnerServiceSearchTest {
         int SIZE_EXPECTED = 2;
 
         List<Owner> owners = ownerService.findByLastName(LAST_NAME);
+        log.info("" + owners);
 
         assertEquals(SIZE_EXPECTED, owners.size());
         assertEquals(LAST_NAME, owners.get(0).getLastName());
@@ -57,6 +58,7 @@ public class OwnerServiceSearchTest {
         int SIZE_EXPECTED = 4;
 
         List<Owner> owners = ownerService.findByCity(CITY);
+        log.info("" + owners);
 
         assertEquals(SIZE_EXPECTED, owners.size());
         assertEquals(CITY, owners.get(0).getCity());
