@@ -20,7 +20,7 @@ public class OwnerServiceSearchTest {
     private OwnerService ownerService;
 
     @Test
-    public void testFindOwnerById() {
+    void testFindOwnerById() {
 
         Integer ID = 1;
         String FIRST_NAME = "George";
