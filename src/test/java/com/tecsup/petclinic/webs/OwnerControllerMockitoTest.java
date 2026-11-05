@@ -8,6 +8,7 @@ import com.tecsup.petclinic.owner.Owner;
 import com.tecsup.petclinic.owner.OwnerNotFoundException;
 import com.tecsup.petclinic.owner.OwnerService;
 import com.tecsup.petclinic.util.OwnerTObjectCreator;
+import java.util.List;
 import org.junit.jupiter.api.Test;
 import org.mockito.Mockito;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -38,6 +39,58 @@ public class OwnerControllerMockitoTest {
 
     @MockitoBean
     private OwnerService ownerService;
+
+
+    // INTEGRANTE A - LISTADO Y CONSULTA CON MOCKITO
+
+    @Test
+    public void testFindAllOwners() throws Exception {
+        Owner owner = new Owner();
+        owner.setId(1);
+        owner.setFirstName("George");
+        owner.setLastName("Franklin");
+
+        Mockito.when(ownerService.findAll())
+                .thenReturn(List.of(owner));
+
+        mockMvc.perform(get("/owners"))
+                .andDo(print())
+                .andExpect(status().isOk())
+                .andExpect(content().contentType(MediaType.APPLICATION_JSON))
+                .andExpect(jsonPath("$[0].id", is(1)));
+
+        Mockito.verify(ownerService).findAll();
+    }
+
+    @Test
+    public void testFindOwnerOK() throws Exception {
+        Owner owner = new Owner();
+        owner.setId(1);
+        owner.setFirstName("George");
+        owner.setLastName("Franklin");
+
+        Mockito.when(ownerService.findById(1))
+                .thenReturn(owner);
+
+        mockMvc.perform(get("/owners/1"))
+                .andDo(print())
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("$.lastName", is("Franklin")));
+
+        Mockito.verify(ownerService).findById(1);
+    }
+
+    @Test
+    public void testFindOwnerKO() throws Exception {
+        Mockito.when(ownerService.findById(666))
+                .thenThrow(new OwnerNotFoundException("Record not found...!"));
+
+        mockMvc.perform(get("/owners/666"))
+                .andDo(print())
+                .andExpect(status().isNotFound());
+
+        Mockito.verify(ownerService).findById(666);
+    }
 
     @Test
     public void testUpdateOwner() throws Exception {

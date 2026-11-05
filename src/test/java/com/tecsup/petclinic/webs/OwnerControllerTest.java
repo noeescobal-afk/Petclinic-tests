@@ -27,6 +27,33 @@ public class OwnerControllerTest {
     @Autowired
     private MockMvc mockMvc;
 
+
+    // INTEGRANTE A - LISTADO Y CONSULTA CON H2
+
+    @Test
+    public void testFindAllOwners() throws Exception {
+        mockMvc.perform(get("/owners"))
+                .andDo(print())
+                .andExpect(status().isOk())
+                .andExpect(content().contentType(MediaType.APPLICATION_JSON))
+                .andExpect(jsonPath("$[0].id", is(1)));
+    }
+
+    @Test
+    public void testFindOwnerOK() throws Exception {
+        mockMvc.perform(get("/owners/1"))
+                .andDo(print())
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("$.lastName", is("Franklin")));
+    }
+
+    @Test
+    public void testFindOwnerKO() throws Exception {
+        mockMvc.perform(get("/owners/666"))
+                .andDo(print())
+                .andExpect(status().isNotFound());
+    }
+
     @Test
     public void testUpdateOwner() throws Exception {
         OwnerDTO newOwnerTO = OwnerTObjectCreator.getOwnerTO();
