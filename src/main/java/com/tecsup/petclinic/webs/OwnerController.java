@@ -5,6 +5,7 @@ import com.tecsup.petclinic.mappers.OwnerMapper;
 import com.tecsup.petclinic.owner.Owner;
 import com.tecsup.petclinic.owner.OwnerNotFoundException;
 import com.tecsup.petclinic.owner.OwnerService;
+import jakarta.validation.Valid;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.DeleteMapping;
@@ -13,7 +14,10 @@ import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.PutMapping;
 import org.springframework.web.bind.annotation.RequestBody;
+import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
+
+import java.util.List;
 
 @RestController
 public class OwnerController {
@@ -26,8 +30,16 @@ public class OwnerController {
         this.mapper = mapper;
     }
 
+    @GetMapping(value = "/owners")
+    ResponseEntity<List<OwnerDTO>> findAll(@RequestParam(required = false) String lastName) {
+        List<Owner> owners = (lastName == null)
+                ? ownerService.findAll()
+                : ownerService.findByLastName(lastName);
+        return ResponseEntity.ok(owners.stream().map(mapper::mapToDto).toList());
+    }
+
     @PostMapping(value = "/owners")
-    ResponseEntity<OwnerDTO> create(@RequestBody OwnerDTO ownerTO) {
+    ResponseEntity<OwnerDTO> create(@Valid @RequestBody OwnerDTO ownerTO) {
         Owner owner = mapper.mapToEntity(ownerTO);
         owner.setId(null);
         Owner newOwner = ownerService.create(owner);

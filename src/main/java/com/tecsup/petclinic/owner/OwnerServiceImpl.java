@@ -36,6 +36,11 @@ public class OwnerServiceImpl implements OwnerService {
     }
 
     @Override
+    public List<Owner> findAll() {
+        return ownerRepository.findAll();
+    }
+
+    @Override
     public List<Owner> findByLastName(String lastName) {
         return ownerRepository.findByLastName(lastName);
     }

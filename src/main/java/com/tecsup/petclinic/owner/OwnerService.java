@@ -7,6 +7,7 @@ public interface OwnerService {
     Owner update(Owner owner);
     void delete(Integer id) throws OwnerNotFoundException;
     Owner findById(Integer id) throws OwnerNotFoundException;
+    List<Owner> findAll();
     List<Owner> findByLastName(String lastName);
     List<Owner> findByCity(String city);
 }

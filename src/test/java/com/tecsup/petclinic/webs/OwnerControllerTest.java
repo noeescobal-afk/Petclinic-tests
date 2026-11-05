@@ -12,7 +12,6 @@ import org.springframework.http.HttpHeaders;
 import org.springframework.http.MediaType;
 import org.springframework.test.web.servlet.MockMvc;
 import org.springframework.test.web.servlet.ResultActions;
-
 import static org.hamcrest.CoreMatchers.is;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.*;
 import static org.springframework.test.web.servlet.result.MockMvcResultHandlers.print;
@@ -88,5 +87,64 @@ public class OwnerControllerTest {
         mockMvc.perform(delete("/owners/1000"))
                 .andDo(print())
                 .andExpect(status().isNotFound());
+    }
+
+
+// ===== INTEGRANTE B: Creación =====
+
+    @Test
+    public void testCreateOwner() throws Exception {
+
+        String FIRST_NAME = "Carlos";
+        String LAST_NAME = "Lajara";
+        String ADDRESS = "Av. Test 123";
+        String CITY = "Lima";
+        String TELEPHONE = "999888777";
+
+        OwnerDTO newOwnerTO = new OwnerDTO();
+        newOwnerTO.setFirstName(FIRST_NAME);
+        newOwnerTO.setLastName(LAST_NAME);
+        newOwnerTO.setAddress(ADDRESS);
+        newOwnerTO.setCity(CITY);
+        newOwnerTO.setTelephone(TELEPHONE);
+
+        mockMvc.perform(post("/owners")
+                        .content(om.writeValueAsString(newOwnerTO))
+                        .header(HttpHeaders.CONTENT_TYPE, MediaType.APPLICATION_JSON))
+                .andDo(print())
+                .andExpect(status().isCreated())
+                .andExpect(jsonPath("$.firstName", is(FIRST_NAME)))
+                .andExpect(jsonPath("$.lastName", is(LAST_NAME)))
+                .andExpect(jsonPath("$.address", is(ADDRESS)))
+                .andExpect(jsonPath("$.city", is(CITY)))
+                .andExpect(jsonPath("$.telephone", is(TELEPHONE)));
+    }
+
+    @Test
+    public void testCreateOwner_BadRequest() throws Exception {
+
+        OwnerDTO invalidOwnerTO = new OwnerDTO();   // sin lastName
+        invalidOwnerTO.setFirstName("Sin Apellido");
+        invalidOwnerTO.setCity("Lima");
+
+        mockMvc.perform(post("/owners")
+                        .content(om.writeValueAsString(invalidOwnerTO))
+                        .header(HttpHeaders.CONTENT_TYPE, MediaType.APPLICATION_JSON))
+                .andDo(print())
+                .andExpect(status().isBadRequest());
+    }
+
+    @Test
+    public void testFindByLastName() throws Exception {
+
+        String LAST_NAME = "Davis";
+        int NRO_RECORD = 2;
+
+        mockMvc.perform(get("/owners").param("lastName", LAST_NAME))
+                .andDo(print())
+                .andExpect(status().isOk())
+                .andExpect(content().contentType(MediaType.APPLICATION_JSON_VALUE))
+                .andExpect(jsonPath("$.size()", is(NRO_RECORD)))
+                .andExpect(jsonPath("$[0].lastName", is(LAST_NAME)));
     }
 }
