@@ -3,12 +3,18 @@ package com.tecsup.petclinic.owner;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import java.util.List;
+import java.util.Optional;
 
 @Service
 @RequiredArgsConstructor
 public class OwnerServiceImpl implements OwnerService {
 
     private final OwnerRepository ownerRepository;
+
+    @Override
+    public List<Owner> findAll() {
+        return ownerRepository.findAll();
+    }
 
     @Override
     public Owner create(Owner owner) {
@@ -27,8 +33,11 @@ public class OwnerServiceImpl implements OwnerService {
 
     @Override
     public Owner findById(Integer id) throws OwnerNotFoundException {
-        return ownerRepository.findById(id)
-                .orElseThrow(() -> new OwnerNotFoundException("Record not found...!"));
+        Optional<Owner> owner = ownerRepository.findById(id);
+        if (!owner.isPresent()) {
+            throw new OwnerNotFoundException("Record not found...!");
+        }
+        return owner.get();
     }
 
     @Override
